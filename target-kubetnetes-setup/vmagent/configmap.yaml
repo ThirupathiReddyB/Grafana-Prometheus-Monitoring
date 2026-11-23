@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vmagent-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 30s
+      scrape_timeout: 10s
+
+    scrape_configs:
+      - job_name: node-exporter
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name]
+            action: keep
+            regex: monitoring;node-exporter
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: metrics
+
+      - job_name: kube-state-metrics
+        static_configs:
+          - targets:
+              - kube-state-metrics.monitoring.svc.cluster.local:8080
+
+      - job_name: kubernetes-cadvisor
+        scheme: https
+        metrics_path: /metrics/cadvisor
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          # Bootstrap setting for EKS kubelet certificates.
+          # For strict certificate validation, configure the appropriate CA and remove this.
+          insecure_skip_verify: true
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_node_address_InternalIP]
+            target_label: __address__
+            regex: (.+)
+            replacement: ${1}:10250
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - source_labels: [__meta_kubernetes_node_name]
+            target_label: node

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmagent
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: vmagent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vmagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vmagent
+    spec:
+      serviceAccountName: vmagent
+      containers:
+        - name: vmagent
+          image: victoriametrics/vmagent:v1.114.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - -promscrape.config=/etc/vmagent/prometheus.yml
+            - -remoteWrite.url=http://MONITORING_EC2_PRIVATE_IP:8428/api/v1/write
+            - -httpListenAddr=:8429
+          ports:
+            - name: http
+              containerPort: 8429
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vmagent
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: vmagent-config
