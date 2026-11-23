@@ -1,0 +1,94 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'node-exporter-wlp-prod'
+    static_configs:
+      - targets: ['10.1.10.109:9100']
+        labels:
+          instance: 'wlp_prod_server'
+
+  - job_name: 'node-exporter-wlp-dev'
+    static_configs:
+      - targets: ['10.2.10.46:9100']
+        labels:
+          instance: 'wlp_dev_server'
+
+  - job_name: 'node-exporter-wlp-qa'
+    static_configs:
+      - targets: ['10.2.10.193:9100']
+        labels:
+          instance: 'wlp_qa_server'
+
+  - job_name: 'node-exporter-wlp-uat'
+    static_configs:
+      - targets: ['10.3.11.178:9100']
+        labels:
+          instance: 'wlp_uat_server'
+
+  - job_name: 'node-exporter-tcv-prod'
+    static_configs:
+      - targets: ['']
+        labels:
+          instance: 'tcv_prod_server'
+
+  - job_name: 'node-exporter-tcv-dev'
+    static_configs:
+      - targets: ['10.2.11.131:9100']
+        labels:
+          instance: 'tcv_dev_server'
+
+  - job_name: 'node-exporter-tcv-qa'
+    static_configs:
+      - targets: ['10.2.11.124:9100']
+        labels:
+          instance: 'tcv_qa_server'
+
+  - job_name: 'node-exporter-tcv-uat'
+    static_configs:
+      - targets: ['10.3.11.27:9100']
+        labels:
+          instance: 'tcv_uat_server'
+
+  ############ cAdvisor ############
+
+  - job_name: 'wlp-dev-containers'
+    static_configs:
+      - targets: ['10.2.10.46:8081']
+        labels:
+          instance: 'wlp_dev_server'
+
+  - job_name: 'wlp-qa-containers'
+    static_configs:
+      - targets: ['10.2.10.193:8081']
+        labels:
+          instance: 'wlp_qa_server'
+
+  - job_name: 'wlp-uat-containers'
+    static_configs:
+      - targets: ['10.3.11.178:8081']
+        labels:
+          instance: 'wlp_uat_server'
+
+  - job_name: 'wlp-prod-containers'
+    static_configs:
+      - targets: ['10.1.10.109:8081']
+        labels:
+          instance: 'wlp_prod_server'
+
+
+#############TCV_ cadvisor########################
+
+  - job_name: 'tcv-uat-containers'
+    static_configs:
+      - targets: ['10.3.11.27:8081']
+        labels:
+          instance: 'tcv_uat_server'
+
+
+
+  - job_name: 'tcv-prod-containers'
+    static_configs:
+      - targets: ['10.1.10.149:8081']
+        labels:
+          instance: 'tcv_prod_server'

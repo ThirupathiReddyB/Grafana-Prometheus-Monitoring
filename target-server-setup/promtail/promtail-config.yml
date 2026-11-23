@@ -1,0 +1,111 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0               # grpc port = 0 to disable grpc (or keep as before)
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://10.0.11.110:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    pipeline_stages:
+      - docker: {}
+
+    relabel_configs:
+      # tell promtail where to read the logs from
+      - source_labels: [ __meta_docker_container_log_path ]
+        target_label: __path__
+
+      # map container name label (strip leading slash)
+      - source_labels: [ __meta_docker_container_name ]
+        regex: '/(.*)'
+        target_label: container_name
+
+      # optionally copy container_name to app label (or other)
+      - source_labels: [ container_name ]
+        target_label: app
+
+      # static labels for all docker logs
+      - target_label: job
+        replacement: prod-docker-container-logs
+      - target_label: log_type
+        replacement: application
+
+  # file-based logs (host-mounted) as you already had
+  - job_name: laravel-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: laravel-wlp-prod-logs
+          app: laravel-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/laravel.log
+
+  - job_name: queue-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: queue-wlp-prod-logs
+          app: queue-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/queue.log
+
+  - job_name: schedule-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: schedule-wlp-prod-logs
+          app: schedule-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/schedule.log
+
+  - job_name: shopify-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: shopify-wlp-prod-logs
+          app: shopify-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/shopify.log
+
+  - job_name: ios_auto_renewals_sync-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: ios_auto_renewals_sync-wlp-prod-logs
+          app: ios_auto_renewals_sync-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/ios_auto_renewals_sync.log
+
+  - job_name: apple_in_app_purchase-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: apple_in_app_purchase-wlp-prod-logs
+          app: apple_in_app_purchase-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/apple_in_app_purchase.log
+
+  - job_name: cron-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: cron-wlp-prod-logs
+          app: cron-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/cron.log
+
+  - job_name: migration_output-wlp-prod-logs
+    static_configs:
+      - targets: [ localhost ]
+        labels:
+          job: migration_output-wlp-prod-logs
+          app: migration_output-wlp-prod
+          log_type: application
+          __path__: /var/www/html/storage/logs/migration_output.log

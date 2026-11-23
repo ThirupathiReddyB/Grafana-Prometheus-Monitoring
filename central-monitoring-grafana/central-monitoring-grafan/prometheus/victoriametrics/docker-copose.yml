@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    container_name: victoriametrics
+    ports:
+      - "8428:8428"
+    volumes:
+      - ./data:/storage
+    restart: always
+
+  vmagent:
+    image: victoriametrics/vmagent:latest
+    container_name: vmagent
+    ports:
+      - "8429:8429"
+    volumes:
+      - ./config.yml:/etc/victoriametrics/config.yml
+    command:
+      - "--promscrape.config=/etc/victoriametrics/config.yml"
+      - "--remoteWrite.url=http://victoriametrics:8428/api/v1/write"
+    depends_on:
+      - victoriametrics
+    restart: always

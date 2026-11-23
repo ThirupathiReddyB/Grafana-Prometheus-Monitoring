@@ -1,0 +1,22 @@
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana_container
+    volumes:
+      - ./data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_CORS_ENABLED=true
+      - GF_CORS_ALLOW_ORIGINS=https://grafana.waggonerdiagnostics.com
+      - GF_SERVER_ROOT_URL=https://grafana.waggonerdiagnostics.com
+    networks:
+      - monitoring-network
+
+volumes:
+  grafana_data:
+
+networks:
+  monitoring-network:
+    external: true
